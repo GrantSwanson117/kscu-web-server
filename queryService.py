@@ -49,8 +49,8 @@ class QueryService:
         return datetime.now().weekday()
          
     async def getAccessToken(self):
-        if hasattr(self, "activeToken") and self.activeToken:
-            return self.activeToken
+        if hasattr(self, "activeToken") and self.activeToken: return self.activeToken
+
         response = await self.client.post(
             self.tokenURL,
             data={
@@ -60,13 +60,21 @@ class QueryService:
                 "client_secret": self.clientSecret,
             },
         )
+
+        if response.status_code != 200:
+            print(f"SYSTEM: Token refresh failed ({response.status_code}): {response.text}")
+            raise RuntimeError(f"Spotify token refresh failed: {response.status_code}")
+
         data = response.json()
-        
-        self.activeToken = data.get("access_token")
+        access_token = data.get("access_token")
+
+        if not access_token:
+            raise RuntimeError(f"Spotify token response missing access_token: {data}")
+
+        self.activeToken = access_token
         asyncio.create_task(self.expireToken(3000))
 
         return self.activeToken
-    
     async def expireToken(self, delay):
         await asyncio.sleep(delay)
         self.activeToken = None
