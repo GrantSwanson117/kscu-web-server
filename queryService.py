@@ -18,15 +18,17 @@ class QueryService:
         self.automationMsgs: str = [
             "Music Never Stops", 
             "Up all Night to get Lucky", 
-            "KSCU's Nocturnal DJ", 
-            "Your 2 A.M Hallucination",
+            "Tunes in Perpetuity", 
+            "No, you're not dreaming",
             "Stream Astrakinetic",
-            "Sleepless in Santa Clara", 
+            "Is Midterm season over yet!?", 
             "Autonomous Audio", 
-            "Dreams Amidst Radio Waves",
+            "Who are you calling scruffy looking?",
             "At This Hour!?",
             "Keep the Signal Alive",
+            "Wake up SWIG",
             "I'm Batman"]
+        
 
         self.refreshToken = os.getenv("SPOTIFY_REFRESH_TOKEN").strip()
 
@@ -90,16 +92,20 @@ class QueryService:
             try:
                 conn.row_factory = sqlite3.Row   
                 query = """
-                    SELECT rowid, * FROM shows 
-                    WHERE (
-                        day_id = ? 
-                        AND start_time <= ? 
+                    SELECT rowid, * FROM shows
+                    WHERE show_title IS NOT NULL
+                    AND TRIM(show_title) != ''
+                    AND (
+                    (
+                        day_id = ?
+                        AND start_time <= ?
                         AND (CASE WHEN end_time = 0 THEN 1440 ELSE end_time END) > ?
                     )
                     OR (
-                        day_id = ? 
-                        AND start_time > (CASE WHEN end_time = 0 THEN 1440 ELSE end_time END) 
-                        AND (CASE WHEN end_time = 0 THEN 1440 ELSE end_time END) > ?
+                            day_id = ?
+                            AND start_time > (CASE WHEN end_time = 0 THEN 1440 ELSE end_time END)
+                            AND (CASE WHEN end_time = 0 THEN 1440 ELSE end_time END) > ?
+                        )
                     )
                 """
                 rows = conn.execute(query, (weekday, currentTime, currentTime, yesterday, currentTime)).fetchall()
