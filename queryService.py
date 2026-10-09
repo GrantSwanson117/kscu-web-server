@@ -136,6 +136,19 @@ class QueryService:
         firstShow["email"] = emailList
         return firstShow
 
+    # Fields that are safe to expose on public endpoints. Everything else in a
+    # show row (DJ legal names, emails, rowid, internal sheet columns) stays
+    # server-side; the show recorder still gets the full row via dbCurrentShow().
+    PUBLIC_SHOW_FIELDS = (
+        "show_title", "dj_name", "day", "day_id", "timeslot",
+        "start_time", "end_time", "category", "description", "image",
+    )
+
+    @classmethod
+    def publicShow(cls, show):
+        if not isinstance(show, dict): return show
+        return {key: show[key] for key in cls.PUBLIC_SHOW_FIELDS if key in show}
+
     def dbFormat(self):
         formatDB.formatDB(self.filename)
 

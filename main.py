@@ -200,7 +200,7 @@ async def recentTracks():
 @app.get("/shows/current/")
 @app.get("/shows/current")
 async def currentShow():
-    return db.dbCurrentShow()
+    return db.publicShow(db.dbCurrentShow())
 
 @app.get("/get-token")
 async def get_my_token(code: str):
@@ -219,7 +219,7 @@ async def get_my_token(code: str):
 @app.get("/shows/next/")
 @app.get("/shows/next")
 def getNextShow():
-    return db.dbNextShow()    
+    return db.publicShow(db.dbNextShow())
 
 @app.get("/schedule")
 def displaySchedule():
